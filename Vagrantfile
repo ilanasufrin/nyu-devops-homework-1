@@ -69,6 +69,24 @@ Vagrant.configure("2") do |config|
    sudo apt-get install -y git python-pip python-dev build-essential
    sudo apt-get -y autoremove
    # Install App Dependencies
+   cd /vagrant
    sudo pip install -r requirements.txt
+  SHELL
+
+  # Add Redis docker container
+  config.vm.provision "docker" do |d|
+    d.pull_images "alpine:latest"
+    d.pull_images "redis:alpine"
+    d.run "redis:alpine",
+      args: "--restart=always -d --name redis -h redis -p 6379:6379 -v /var/lib/redis/data:/data"
+  end
+
+
+  # Install Docker Compose after Docker Engine
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL
+    sudo pip install docker-compose
+    # UNCOMMENT ME WHEN IT'S TIME TO DEPLOY TO BLUEMIX
+    # Install the IBM Container plugin
+  #  echo Y | cf install-plugin https://static-ice.ng.bluemix.net/ibm-containers-linux_x64
   SHELL
 end
