@@ -24,14 +24,14 @@ HTTP_404_NOT_FOUND = 404
 HTTP_409_CONFLICT = 409
 
 # Create Flask application
-app = Flask(__name__)
+app = Flask(__IceCream__)
 
 ######################################################################
 # GET INDEX
 ######################################################################
 @app.route('/')
 def index():
-    return jsonify(name='My REST API Service', version='1.0', url='/resources'), HTTP_200_OK
+    return jsonify(name='Ice Cream REST API Service', version='1.0', url='/ice-creams'), HTTP_200_OK
 
 ######################################################################
 # LIST ALL resourceS
@@ -50,12 +50,25 @@ def get_a_flavor(serialno):
     pass
 
 ######################################################################
-# ADD A NEW resource
+# ADD A NEW Ice cream flavor
 ######################################################################
-@app.route('/flavors/flavor', methods=['POST'])
-def create_new_flavor():
-    # YOUR CODE here (remove pass)
-    pass
+@app.route('/ice-creams', methods=['POST'])
+def create_flavor():
+    payload = json.loads(request.data)
+    if is_valid(payload):
+        id = payload['name']
+        if ice_creams.has_key(id):
+            message = {'error': 'Ice Cream Flavor %s already exists' % id }
+            rc = HTTP_409_CONFLICT
+        else:
+            ice_creams[id] = {'name': payload['name'], 'description': payload['description'], 'status': payload['status'], 'base': payload['base'], 'price': payload['price'], 'popularity': payload['popularity']}
+            message = ice_creams[id]
+            rc = HTTP_201_CREATED
+    else:
+        message = { 'error' : 'Data is not valid' }
+        rc = HTTP_400_BAD_REQUEST
+
+    return reply(message, rc)
 
 ######################################################################
 # UPDATE AN EXISTING resource
@@ -88,6 +101,29 @@ def list_resources_by_type(attributeValue):
 def update_flavor_status(serialno,statusvalue):
     # YOUR CODE here (remove pass)
     pass
+    
+######################################################################
+# utility functions
+######################################################################
+def reply(message, rc):
+    response = Response(json.dumps(message))
+    response.headers['Content-Type'] = 'application/json'
+    response.status_code = rc
+    return response
+
+def is_valid(data):
+    valid = False
+    try:
+        name = data['name']
+        description = data['description']
+        status = data['status']
+        base = data['base']
+        price = data['price']
+        popularity = data['popularity']
+        valid = True
+    except KeyError as err:
+        app.logger.error('Missing value error: %s', err)
+    return valid
 
 ######################################################################
 #   M A I N
