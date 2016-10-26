@@ -15,6 +15,9 @@
 import os
 from flask import Flask, Response, jsonify, request, json
 
+# ice-cream Model for testing
+icecreams = {'Vanilla': {'name': 'Vanilla', 'description': 'Ice Cream made from real vanilla, milk and sweet cream','status':'frozen','base':'milk','price':'$4.49','popularity':'4.3/5'}, 'Chocolate': {'name': 'Chocolate', 'description': 'Ice Cream made from real cacao bean, milk and sweet cream','status':'frozen','base':'milk','price':'$4.49','popularity':'4.8/5'}, 'Strawberry': {'name': 'Strawberry', 'description': 'Ice Cream made from real strawberry, milk and sweet cream','status':'melted','base':'almond milk','price':'$4.49','popularity':'3.8/5'}}
+
 # Status Codes
 HTTP_200_OK = 200
 HTTP_201_CREATED = 201
@@ -24,7 +27,7 @@ HTTP_404_NOT_FOUND = 404
 HTTP_409_CONFLICT = 409
 
 # Create Flask application
-app = Flask(__IceCream__)
+app = Flask(__name__)
 
 ######################################################################
 # GET INDEX
@@ -36,18 +39,26 @@ def index():
 ######################################################################
 # LIST ALL resourceS
 ######################################################################
-@app.route('/flavors', methods=['GET'])
-def list_all_flavors():
-    # YOUR CODE here (remove pass)
-    pass
+@app.route('/ice-creams', methods=['GET'])
+def list_all_ice_creams():
+     results = icecreams.values()
+     for key, value in icecreams.iteritems():
+         results.append(icecreams[key])
+     return reply(results, HTTP_200_OK)
 
 ######################################################################
 # RETRIEVE A resource
 ######################################################################
-@app.route('/flavors/flavor/<serialno>', methods=['GET'])
-def get_a_flavor(serialno):
-    # YOUR CODE here (remove pass)
-    pass
+@app.route('/ice-creams/<id>', methods=['GET'])
+def get_an_ice_cream(id):
+     if (icecreams).has_key(id):
+         message = icecreams[id]
+         rc = HTTP_200_OK
+     else:
+         message = { 'error' : 'Ice-cream %s was not found' % id }
+         rc = HTTP_404_NOT_FOUND
+
+     return reply(message, rc)
 
 ######################################################################
 # ADD A NEW Ice cream flavor
@@ -73,10 +84,19 @@ def create_flavor():
 ######################################################################
 # UPDATE AN EXISTING resource
 ######################################################################
-@app.route('/flavors/flavor/<serialno>', methods=['PUT'])
-def update_flavor(serialno):
-    # YOUR CODE here (remove pass)
-    pass
+@app.route('/ice-creams/<id>', methods=['PUT'])
+def update_flavor(id):
+     payload = json.loads(request.data)
+     if icecreams.has_key(id):
+         icecreams[id] = {'name': payload['name'], 'description': payload['description'], 'status': payload['status'], 'base': payload['base'], 'price': payload['price'], 'popularity': payload['popularity']}
+         message = icecreams[id]
+         rc = HTTP_200_OK
+     else:
+         message = { 'error' : 'Ice-cream %s was not found' % id }
+         rc = HTTP_404_NOT_FOUND
+
+     return reply(message, rc)
+    
 
 ######################################################################
 # DELETE A resource
