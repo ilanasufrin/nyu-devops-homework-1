@@ -91,7 +91,12 @@ def delete_flavor(serialno):
 ############################################################################
 @app.route('/flavors/<attributeValue>', methods=['GET'])
 def list_resources_by_type(attributeValue):
-    # YOUR CODE here (remove pass)
+	if flavor.has_key(serialno)
+		message = flavor[serialno]
+		rc = HTTP_200_OK
+	else
+		message = { 'error' : 'Flavor %s was not found' % serialno }
+		rc = HTTP_404_NOT_FOUND
     pass
     
 ######################################################################
@@ -99,7 +104,17 @@ def list_resources_by_type(attributeValue):
 ######################################################################
 @app.route('/flavors/flavor/<serialno>/<statusvalue>', methods=['PUT'])
 def update_flavor_status(serialno,statusvalue):
-    # YOUR CODE here (remove pass)
+     payload = json.loads(request.data)
+		if flavor.has_key(serialno)
+			flavor[serialno] = {'name': payload['name'], 'description': payload['description'], 'status': [statusvalue], 'base': payload['base'], 'price': payload['price'], 'popularity': payload['popularity']}
+			message = flavor[serialno]
+			rc = HTTP_200_OK
+		else
+			message = { 'error' : 'Flavor %s was not found' % serialno }
+			rc = HTTP_404_NOT_FOUND
+	
+		return reply(message, rc)
+		
     pass
     
 ######################################################################
