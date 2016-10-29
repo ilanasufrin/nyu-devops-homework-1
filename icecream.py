@@ -27,7 +27,7 @@ HTTP_404_NOT_FOUND = 404
 HTTP_409_CONFLICT = 409
 
 # Create Flask application
-app = Flask(__IceCream__)
+app = Flask(__name__)
 
 ######################################################################
 # GET INDEX
@@ -100,42 +100,39 @@ def update_ice_cream(id):
 ######################################################################
 # DELETE A resource
 ######################################################################
-@app.route('/flavors/flavor/<serialno>', methods=['DELETE'])
-def delete_flavor(serialno):
-    # YOUR CODE here (remove pass)
-    pass
+@app.route('/ice-creams/<id>', methods=['DELETE'])
+def delete_flavor(id):
+    del icecreams[id]
+    return '', HTTP_204_NO_CONTENT
 
 ############################################################################
 # QUERY Resources by some attribute of the Resource - Type: Vegan/Non-Vegan
 ############################################################################
 @app.route('/flavors/<attributeValue>', methods=['GET'])
 def list_resources_by_type(attributeValue):
-	if flavor.has_key(serialno)
+	if flavor.has_key(serialno):
 		message = flavor[serialno]
 		rc = HTTP_200_OK
-	else
+	else:
 		message = { 'error' : 'Flavor %s was not found' % serialno }
 		rc = HTTP_404_NOT_FOUND
-    pass
-    
+
 ######################################################################
 # PERFORM some Action on the Resource - UPDATE a resource status
 ######################################################################
 @app.route('/flavors/flavor/<serialno>/<statusvalue>', methods=['PUT'])
 def update_flavor_status(serialno,statusvalue):
-     payload = json.loads(request.data)
-		if flavor.has_key(serialno)
-			flavor[serialno] = {'name': payload['name'], 'description': payload['description'], 'status': [statusvalue], 'base': payload['base'], 'price': payload['price'], 'popularity': payload['popularity']}
-			message = flavor[serialno]
-			rc = HTTP_200_OK
-		else
-			message = { 'error' : 'Flavor %s was not found' % serialno }
-			rc = HTTP_404_NOT_FOUND
-	
-		return reply(message, rc)
-		
-    pass
-    
+    payload = json.loads(request.data)
+    if flavor.has_key(serialno):
+		flavor[serialno] = {'name': payload['name'], 'description': payload['description'], 'status': [statusvalue], 'base': payload['base'], 'price': payload['price'], 'popularity': payload['popularity']}
+		message = flavor[serialno]
+		rc = HTTP_200_OK
+    else:
+		message = { 'error' : 'Flavor %s was not found' % serialno }
+		rc = HTTP_404_NOT_FOUND
+
+    return reply(message, rc)
+
 ######################################################################
 # utility functions
 ######################################################################
