@@ -15,6 +15,9 @@
 import os
 from flask import Flask, Response, jsonify, request, json
 
+# ice-cream Model for testing
+icecreams = {'Vanilla': {'name': 'Vanilla', 'description': 'Ice Cream made from real vanilla, milk and sweet cream','status':'frozen','base':'milk','price':'$4.49','popularity':'4.3/5'}, 'Chocolate': {'name': 'Chocolate', 'description': 'Ice Cream made from real cacao bean, milk and sweet cream','status':'frozen','base':'milk','price':'$4.49','popularity':'4.8/5'}, 'Strawberry': {'name': 'Strawberry', 'description': 'Ice Cream made from real strawberry, milk and sweet cream','status':'melted','base':'almond milk','price':'$4.49','popularity':'3.8/5'}}
+
 # Status Codes
 HTTP_200_OK = 200
 HTTP_201_CREATED = 201
@@ -24,7 +27,7 @@ HTTP_404_NOT_FOUND = 404
 HTTP_409_CONFLICT = 409
 
 # Create Flask application
-app = Flask(__IceCream__)
+app = Flask(__name__)
 
 ######################################################################
 # GET INDEX
@@ -36,18 +39,26 @@ def index():
 ######################################################################
 # LIST ALL resourceS
 ######################################################################
-@app.route('/flavors', methods=['GET'])
-def list_all_flavors():
-    # YOUR CODE here (remove pass)
-    pass
+@app.route('/ice-creams', methods=['GET'])
+def list_all_ice_creams():
+     results = []
+     for key, value in icecreams.iteritems():
+         results.append(icecreams[key])
+     return reply(results, HTTP_200_OK)
 
 ######################################################################
 # RETRIEVE A resource
 ######################################################################
-@app.route('/flavors/flavor/<serialno>', methods=['GET'])
-def get_a_flavor(serialno):
-    # YOUR CODE here (remove pass)
-    pass
+@app.route('/ice-creams/<id>', methods=['GET'])
+def get_an_ice_cream(id):
+     if (icecreams).has_key(id):
+         message = icecreams[id]
+         rc = HTTP_200_OK
+     else:
+         message = { 'error' : 'Ice-cream %s was not found' % id }
+         rc = HTTP_404_NOT_FOUND
+
+     return reply(message, rc)
 
 ######################################################################
 # ADD A NEW Ice cream flavor
@@ -73,35 +84,80 @@ def create_flavor():
 ######################################################################
 # UPDATE AN EXISTING resource
 ######################################################################
-@app.route('/flavors/flavor/<serialno>', methods=['PUT'])
-def update_flavor(serialno):
-    # YOUR CODE here (remove pass)
-    pass
+@app.route('/ice-creams/<id>', methods=['PUT'])
+def update_ice_cream(id):
+     payload = json.loads(request.data)
+     if icecreams.has_key(id):
+         icecreams[id] = {'name': payload['name'], 'description': payload['description'], 'status': payload['status'], 'base': payload['base'], 'price': payload['price'], 'popularity': payload['popularity']}
+         message = icecreams[id]
+         rc = HTTP_200_OK
+     else:
+         message = { 'error' : 'Ice-cream %s was not found' % id }
+         rc = HTTP_404_NOT_FOUND
+
+     return reply(message, rc)
 
 ######################################################################
 # DELETE A resource
 ######################################################################
-@app.route('/flavors/flavor/<serialno>', methods=['DELETE'])
-def delete_flavor(serialno):
-    # YOUR CODE here (remove pass)
-    pass
+@app.route('/ice-creams/<id>', methods=['DELETE'])
+def delete_flavor(id):
+    del icecreams[id]
+    return '', HTTP_204_NO_CONTENT
+    
+    
+######################################################################
+# RETRIEVE ice-creams based on popularity
+# http://localhost:5000/ice-creams?popularity=4 fetches all the
+# ice creams with popularity greater equal to 4.0
+######################################################################
+@app.route('/ice-cream/', methods=['GET'])
+def get_popular_ice_cream():
+     pop = request.args.get('popularity')
+     results = []
+     for key, value in icecreams.iteritems():
+         #popularity is stored as a string 4.3/5,
+         #hence split on '/' and take the first item(index = 0)
+         # to get 4.3
+         icepop = icecreams[key]['popularity'].split("/")[0]
+         if float(icepop) >= float(pop):
+             results.append(icecreams[key])
+             rc = HTTP_200_OK
+     if not results:
+         message = { 'error' : 'Ice-cream popularity greater than %s was not found' % pop}
+         rc = HTTP_404_NOT_FOUND
+         return reply(message, rc)
+     else:     
+         return reply(results, rc)    
 
 ############################################################################
 # QUERY Resources by some attribute of the Resource - Type: Vegan/Non-Vegan
 ############################################################################
 @app.route('/flavors/<attributeValue>', methods=['GET'])
 def list_resources_by_type(attributeValue):
-    # YOUR CODE here (remove pass)
-    pass
-    
+	if flavor.has_key(serialno):
+		message = flavor[serialno]
+		rc = HTTP_200_OK
+	else:
+		message = { 'error' : 'Flavor %s was not found' % serialno }
+		rc = HTTP_404_NOT_FOUND
+
 ######################################################################
 # PERFORM some Action on the Resource - UPDATE a resource status
 ######################################################################
 @app.route('/flavors/flavor/<serialno>/<statusvalue>', methods=['PUT'])
 def update_flavor_status(serialno,statusvalue):
-    # YOUR CODE here (remove pass)
-    pass
-    
+    payload = json.loads(request.data)
+    if flavor.has_key(serialno):
+		flavor[serialno] = {'name': payload['name'], 'description': payload['description'], 'status': [statusvalue], 'base': payload['base'], 'price': payload['price'], 'popularity': payload['popularity']}
+		message = flavor[serialno]
+		rc = HTTP_200_OK
+    else:
+		message = { 'error' : 'Flavor %s was not found' % serialno }
+		rc = HTTP_404_NOT_FOUND
+
+    return reply(message, rc)
+
 ######################################################################
 # utility functions
 ######################################################################
