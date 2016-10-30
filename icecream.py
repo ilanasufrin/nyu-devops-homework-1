@@ -57,12 +57,12 @@ def create_flavor():
     payload = json.loads(request.data)
     if is_valid(payload):
         id = payload['name']
-        if ice_creams.has_key(id):
+        if icecreams.has_key(id):
             message = {'error': 'Ice Cream Flavor %s already exists' % id }
             rc = HTTP_409_CONFLICT
         else:
-            ice_creams[id] = {'name': payload['name'], 'description': payload['description'], 'status': payload['status'], 'base': payload['base'], 'price': payload['price'], 'popularity': payload['popularity']}
-            message = ice_creams[id]
+            icecreams[id] = {'name': payload['name'], 'description': payload['description'], 'status': payload['status'], 'base': payload['base'], 'price': payload['price'], 'popularity': payload['popularity']}
+            message = icecreams[id]
             rc = HTTP_201_CREATED
     else:
         message = { 'error' : 'Data is not valid' }
