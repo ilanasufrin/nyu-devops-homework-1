@@ -1,0 +1,9 @@
+applications:
+- path: .
+  memory: 128M
+  instances: 1
+  domain: mybluemix.net
+  name: devops-icecream
+  host: devops-icecream
+  disk_quota: 1024M
+  buildpack: python_buildpack
