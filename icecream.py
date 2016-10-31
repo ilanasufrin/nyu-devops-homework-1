@@ -151,26 +151,27 @@ def list_resources_by_type():
 # http://localhost:5000/ice-creams?status=freeze changes the status of all ice creams to frozen
 ######################################################################
 
-#@app.route('/ice-creams/', methods=['PUT'])
-#def  put_ice_cream_status():
-#     statusupdate = request.args.get('status')
-#	 if statusupdate == 'melt'
-#		for key, value in icecreams.iteritems():
-#			status = icecreams[key]['status']
-#			if  status == 'frozen':
-#				update_ice_cream(icecreams[key][id])
-#				rc = HTTP_200_OK
-#	 else if statusupdate == 'freeze'
-#		for key, value in icecreams.iteritems():
-#			status = icecreams[key]['status']
-#			if  status == 'melt':
-#				update_ice_cream(icecreams[key][id])
-#				rc = HTTP_200_OK
-#    else:
-#        message = { 'error' : 'No ice creams were found therefore none could have there status changed to'  %  statusupdate}
-#         rc = HTTP_404_NOT_FOUND
-		 
-#    return reply(message, rc)  
+@app.route('/ice-creams/', methods=['PUT'])
+def  put_ice_cream_status():
+     payload = json.loads(request.data)
+     statusupdate = request.args.get('status')
+     if statusupdate == 'melt':
+          for key, value in icecreams.iteritems():
+               status = icecreams[key]['status']
+               if status == 'frozen':
+                    icecreams[icecreams[key][0]['id']] = {'name': payload['name'], 'description': payload['description'], 'status' : 'melted', 'base': payload['base'], 'price':payload['price'], 'popularity': payload['popularity']}
+                    rc = HTTP_200_OK
+     if statusupdate == 'freeze':
+          for key, value in icecreams.iteritems():
+               status = icecreams[key]['status']
+               if status == 'melt':
+                    icecreams[icecreams[key][0]['id']]  = {'name': payload['name'], 'description': payload['description'], 'status' : 'frozen', 'base': payload['base'], 'price':payload['price'], 'popularity': payload['popularity']}
+                    rc = HTTP_200_OK
+     else:
+          message = { 'error' : 'No ice creams were found therefore none could have there status changed to'  %  statusupdate}
+          rc = HTTP_404_NOT_FOUND
+
+     return reply(message, rc)  
 		 
 ######################################################################
 # utility functions
