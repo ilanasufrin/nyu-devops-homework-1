@@ -167,7 +167,7 @@ def  put_ice_cream_status():
                icecreams[key]['status'] = 'frozen'
                rc = HTTP_200_OK
      else:
-          message = { 'error' : 'No ice creams were found therefore none could have there status changed to'  %  statusupdate}
+          message = { 'error' : 'No ice creams were found therefore none could have there status changed to %s'  %  statusupdate}
           rc = HTTP_404_NOT_FOUND
 
      return reply(message, rc)  
