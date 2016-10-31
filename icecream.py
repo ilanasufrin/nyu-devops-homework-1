@@ -111,24 +111,24 @@ def delete_flavor(id):
 # http://localhost:5000/ice-creams?popularity=4 fetches all the
 # ice creams with popularity greater equal to 4.0
 ######################################################################
-@app.route('/ice-creams/', methods=['GET'])
-def get_popular_ice_cream():
-     pop = request.args.get('popularity')
-     results = []
-     for key, value in icecreams.iteritems():
+#@app.route('/ice-creams/', methods=['GET'])
+#def get_popular_ice_cream():
+#     pop = request.args.get('popularity')
+#     results = []
+#     for key, value in icecreams.iteritems():
          #popularity is stored as a string 4.3/5,
          #hence split on '/' and take the first item(index = 0)
          # to get 4.3
-         icepop = icecreams[key]['popularity'].split("/")[0]
-         if float(icepop) >= float(pop):
-             results.append(icecreams[key])
-             rc = HTTP_200_OK
-     if not results:
-         message = { 'error' : 'Ice-cream popularity greater than %s was not found' % pop}
-         rc = HTTP_404_NOT_FOUND
-         return reply(message, rc)
-     else:     
-         return reply(results, rc)    
+#         icepop = icecreams[key]['popularity'].split("/")[0]
+#         if float(icepop) >= float(pop):
+#             results.append(icecreams[key])
+#             rc = HTTP_200_OK
+#     if not results:
+#         message = { 'error' : 'Ice-cream popularity greater than %s was not found' % pop}
+#         rc = HTTP_404_NOT_FOUND
+#         return reply(message, rc)
+#     else:     
+#         return reply(results, rc)    
 
 ############################################################################
 # QUERY Resources by some attribute of the Resource - Type: Melted/Frozen
