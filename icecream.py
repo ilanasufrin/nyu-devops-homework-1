@@ -159,12 +159,14 @@ def  put_ice_cream_status():
 #              status = icecreams[key]['status']
 #              if status == 'frozen':
                icecreams[key]['status'] = 'melted'
+               message = { 'success' : 'All ice creams have been melted.'}
                rc = HTTP_200_OK
-     if statusupdate == 'freeze':
+     elif statusupdate == 'freeze':
           for key, value in icecreams.iteritems():
 #              status = icecreams[key]['status']
 #              if status == 'melt':
                icecreams[key]['status'] = 'frozen'
+               message = { 'success' : 'All ice creams have been frozen.'} 
                rc = HTTP_200_OK
      else:
           message = { 'error' : 'No ice creams were found therefore none could have there status changed to %s'  %  statusupdate}
