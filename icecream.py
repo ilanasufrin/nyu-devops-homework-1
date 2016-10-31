@@ -111,7 +111,7 @@ def delete_flavor(id):
 # http://localhost:5000/ice-creams?popularity=4 fetches all the
 # ice creams with popularity greater equal to 4.0
 ######################################################################
-@app.route('/ice-cream/', methods=['GET'])
+@app.route('/ice-creams/', methods=['GET'])
 def get_popular_ice_cream():
      pop = request.args.get('popularity')
      results = []
@@ -131,33 +131,47 @@ def get_popular_ice_cream():
          return reply(results, rc)    
 
 ############################################################################
-# QUERY Resources by some attribute of the Resource - Type: Vegan/Non-Vegan
+# QUERY Resources by some attribute of the Resource - Type: Melted/Frozen
 ############################################################################
-@app.route('/flavors/<attributeValue>', methods=['GET'])
-def list_resources_by_type(attributeValue):
-	if flavor.has_key(serialno):
-		message = flavor[serialno]
-		rc = HTTP_200_OK
-	else:
-		message = { 'error' : 'Flavor %s was not found' % serialno }
-		rc = HTTP_404_NOT_FOUND
-
+@app.route('/ice-creams/<id>', methods=['GET'])
+def list_resources_by_type():
+	results = icecreams.values()
+	status = request.args.get('status')
+	if status:
+		results = []
+		for key, value in icecreams.iteritems():
+			if value['status'] == 'status':
+				results.append(icecreams[key])
+				
+	return reply(results, HTTP_200_OK)
+	
 ######################################################################
 # PERFORM some Action on the Resource - UPDATE a resource status
+# http://localhost:5000/ice-creams?status=melt changes the status of all ice creams to melted
+# http://localhost:5000/ice-creams?status=freeze changes the status of all ice creams to frozen
 ######################################################################
-@app.route('/flavors/flavor/<serialno>/<statusvalue>', methods=['PUT'])
-def update_flavor_status(serialno,statusvalue):
-    payload = json.loads(request.data)
-    if flavor.has_key(serialno):
-		flavor[serialno] = {'name': payload['name'], 'description': payload['description'], 'status': [statusvalue], 'base': payload['base'], 'price': payload['price'], 'popularity': payload['popularity']}
-		message = flavor[serialno]
-		rc = HTTP_200_OK
-    else:
-		message = { 'error' : 'Flavor %s was not found' % serialno }
-		rc = HTTP_404_NOT_FOUND
 
-    return reply(message, rc)
-
+#@app.route('/ice-creams/', methods=['PUT'])
+#def  put_ice_cream_status():
+#     statusupdate = request.args.get('status')
+#	 if statusupdate == 'melt'
+#		for key, value in icecreams.iteritems():
+#			status = icecreams[key]['status']
+#			if  status == 'frozen':
+#				update_ice_cream(icecreams[key][id])
+#				rc = HTTP_200_OK
+#	 else if statusupdate == 'freeze'
+#		for key, value in icecreams.iteritems():
+#			status = icecreams[key]['status']
+#			if  status == 'melt':
+#				update_ice_cream(icecreams[key][id])
+#				rc = HTTP_200_OK
+#    else:
+#        message = { 'error' : 'No ice creams were found therefore none could have there status changed to'  %  statusupdate}
+#         rc = HTTP_404_NOT_FOUND
+		 
+#    return reply(message, rc)  
+		 
 ######################################################################
 # utility functions
 ######################################################################
