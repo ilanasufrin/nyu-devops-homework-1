@@ -151,7 +151,7 @@ def list_resources_by_type():
 # http://localhost:5000/ice-creams?status=freeze changes the status of all ice creams to frozen
 ######################################################################
 
-@app.route('/ice-creams/', methods=['PUT'])
+@app.route('/ice-creams', methods=['PUT'])
 def  put_ice_cream_status():
      statusupdate = request.args.get('status')
      if statusupdate == 'melt':
