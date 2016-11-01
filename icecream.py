@@ -102,8 +102,11 @@ def update_ice_cream(id):
 ######################################################################
 @app.route('/ice-creams/<id>', methods=['DELETE'])
 def delete_flavor(id):
-    del icecreams[id]
-    return '', HTTP_204_NO_CONTENT
+    if icecreams.has_key(id):
+        del icecreams[id]
+        return '', HTTP_204_NO_CONTENT
+    else:
+        return '', HTTP_204_NO_CONTENT    
     
     
 ######################################################################
@@ -111,7 +114,7 @@ def delete_flavor(id):
 # http://localhost:5000/ice-creams?popularity=4 fetches all the
 # ice creams with popularity greater equal to 4.0
 ######################################################################
-@app.route('/ice-creams/', methods=['GET'])
+@app.route('/ice-cream/', methods=['GET'])
 def get_popular_ice_cream():
      pop = request.args.get('popularity')
      results = []
