@@ -22,7 +22,7 @@ Vagrant.configure("2") do |config|
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
-  config.vm.network "forwarded_port", guest: 80, host: 8080
+ #  config.vm.network "forwarded_port", guest: 80, host: 8080
   #port forwarding for python flask port 5000
   config.vm.network "forwarded_port", guest: 5000, host: 5000
   # Create a private network, which allows host-only access to the machine
@@ -67,8 +67,20 @@ Vagrant.configure("2") do |config|
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
    sudo apt-get update
-   sudo apt-get install -y git python-pip python-dev build-essential
+   sudo apt-get install -y git python-pip python-dev build-essential zip
    sudo apt-get -y autoremove
+  # Install the cloud foundry CLI
+   wget -O cf-cli-installer_6.22.1_x86-64.deb 'https://cli.run.pivotal.io/stable?release=debian64&version=6.22.1&source=github-rel'
+   sudo dpkg -i cf-cli-installer_6.22.1_x86-64.deb
+   rm cf-cli-installer_6.22.1_x86-64.deb
+  # Install Bluemix CLI
+   wget http://public.dhe.ibm.com/cloud/bluemix/cli/bluemix-cli/Bluemix_CLI_0.4.2_amd64.tar.gz
+   tar -xvf Bluemix_CLI_0.4.2_amd64.tar.gz
+   cd Bluemix_CLI/
+   sudo ./install_bluemix_cli
+   cd ..
+   rm -fr Bluemix_CLI/
+   rm Bluemix_CLI_0.4.2_amd64.tar.gz
    # Install App Dependencies
    cd /vagrant
    sudo pip install -r requirements.txt
