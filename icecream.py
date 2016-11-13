@@ -16,7 +16,10 @@ import os
 from flask import Flask, Response, jsonify, request, json
 
 # ice-cream Model for testing
-icecreams = {'Vanilla': {'name': 'Vanilla', 'description': 'Ice Cream made from real vanilla, milk and sweet cream','status':'frozen','base':'milk','price':'$4.49','popularity':'4.3/5'}, 'Chocolate': {'name': 'Chocolate', 'description': 'Ice Cream made from real cacao bean, milk and sweet cream','status':'frozen','base':'milk','price':'$4.49','popularity':'4.8/5'}, 'Strawberry': {'name': 'Strawberry', 'description': 'Ice Cream made from real strawberry, milk and sweet cream','status':'melted','base':'almond milk','price':'$4.49','popularity':'3.8/5'}}
+icecreams = {'Vanilla': {'name': 'Vanilla', 'description': 'Ice Cream made from real vanilla, milk and sweet cream','status':'frozen','base':'milk','price':'$4.49','popularity':'4.3/5'}, \
+            'Chocolate': {'name': 'Chocolate', 'description': 'Ice Cream made from real cacao bean, milk and sweet cream','status':'frozen','base':'milk','price':'$4.49','popularity':'4.8/5'}, \
+            'Strawberry': {'name': 'Strawberry', 'description': 'Ice Cream made from real strawberry, milk and sweet cream','status':'melted','base':'almond milk','price':'$4.49','popularity':'3.8/5'} \
+            }
 
 # Status Codes
 HTTP_200_OK = 200
@@ -34,7 +37,53 @@ app = Flask(__name__)
 ######################################################################
 @app.route('/')
 def index():
-    return jsonify(name='Ice Cream REST API Service', version='1.0', url='/ice-creams'), HTTP_200_OK
+    docs = {
+      "name": "Ice-cream REST API",
+      "version": "1.0",
+      "domain": "http://devops-icecream.mybluemix.net/",
+      "url": [
+        {
+          "url":"/ice-cream",
+          "method": "GET",
+          "description": "List all icecream information"
+        },{
+          "url":"/ice-cream/<id>",
+          "method": "GET",
+          "description": "Get icecream with id <id>"
+        },{
+          "url":"/ice-cream",
+          "method": "POST",
+          "description": "Create an icecream",
+          "sample_body": {
+            "id": 0,
+            "name": "Vanilla",
+            "description": "Ice Cream made from real vanilla, milk and sweet cream",
+            "status": "frozen",
+            "base": "milk",
+            "price": "$4.49",
+            "popularity": "4.3/5"
+          }
+        },{
+          "url":"/ice-cream/<id>",
+          "method": "DELETE",
+          "description": "Delete an icecream"
+        },{
+          "url":"/ice-cream/<id>",
+          "method": "PUT",
+          "description": "Update ice-cream with id <id>. Updates description and status",
+          "sample_body": {
+            "id": 0,
+            "name": "Vanilla",
+            "description": "Ice Cream made from real vanilla, milk and sweet cream",
+            "status": "frozen",
+            "base": "milk",
+            "price": "$4.49",
+            "popularity": "4.3/5"
+          }
+        }
+      ]
+    }
+    return reply(docs, HTTP_200_OK)
 
 ######################################################################
 # LIST ALL resourceS
@@ -61,7 +110,7 @@ def get_an_ice_cream(id):
      return reply(message, rc)
 
 ######################################################################
-# ADD A NEW Ice cream flavor 
+# ADD A NEW Ice cream flavor
 ######################################################################
 @app.route('/ice-creams', methods=['POST'])
 def create_flavor():
@@ -106,8 +155,8 @@ def delete_flavor(id):
         del icecreams[id]
         return '', HTTP_204_NO_CONTENT
     else:
-        return '', HTTP_204_NO_CONTENT    
-    
+        return '', HTTP_204_NO_CONTENT
+
 
 ############################################################################
 # QUERY Resources by some attribute of the Resource - Type: Melted/Frozen
@@ -121,9 +170,9 @@ def list_resources_by_type():
 		for key, value in icecreams.iteritems():
 			if value['status'] == 'status':
 				results.append(icecreams[key])
-				
+
 	return reply(results, HTTP_200_OK)
-	
+
 ######################################################################
 # PERFORM some Action on the Resource - UPDATE a resource status
 # http://localhost:5000/ice-creams?status=melt changes the status of all ice creams to melted
@@ -145,14 +194,14 @@ def  put_ice_cream_status():
 #              status = icecreams[key]['status']
 #              if status == 'melt':
                icecreams[key]['status'] = 'frozen'
-               message = { 'success' : 'All ice creams have been frozen.'} 
+               message = { 'success' : 'All ice creams have been frozen.'}
                rc = HTTP_200_OK
      else:
           message = { 'error' : 'No ice creams were found therefore none could have there status changed to %s'  %  statusupdate}
           rc = HTTP_404_NOT_FOUND
 
-     return reply(message, rc)  
-		 
+     return reply(message, rc)
+
 ######################################################################
 # utility functions
 ######################################################################
