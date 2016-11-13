@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+import redis
 from flask import Flask, Response, jsonify, request, json
 
 # ice-cream Model for testing
@@ -112,22 +113,21 @@ def get_an_ice_cream(id):
 ######################################################################
 # ADD A NEW Ice cream flavor
 ######################################################################
-@app.route('/ice-creams', methods=['POST'])
+@app.route('/ice-cream', methods=['POST'])
 def create_flavor():
+    global flavors
     payload = json.loads(request.data)
-    if is_valid(payload):
-        id = payload['name']
-        if icecreams.has_key(id):
-            message = {'error': 'Ice Cream Flavor %s already exists' % id }
-            rc = HTTP_409_CONFLICT
-        else:
-            icecreams[id] = {'name': payload['name'], 'description': payload['description'], 'status': payload['status'], 'base': payload['base'], 'price': payload['price'], 'popularity': payload['popularity']}
-            message = icecreams[id]
-            rc = HTTP_201_CREATED
+    id = str(payload['id'])
+    flavors = get_from_redis('flavors')
+    if flavors.has_key(id):
+        message = { 'error' : 'Flavor %s already exists' % id }
+        rc = HTTP_409_CONFLICT
     else:
-        message = { 'error' : 'Data is not valid' }
-        rc = HTTP_400_BAD_REQUEST
-
+        flavors[id] = payload
+        message = flavors[id]
+        rc = HTTP_201_CREATED
+        json_users=json.dumps(flavors)
+        redis_server.set('flavors',json_users)
     return reply(message, rc)
 
 ######################################################################
@@ -225,10 +225,41 @@ def is_valid(data):
         app.logger.error('Missing value error: %s', err)
     return valid
 
+# Initialize Redis
+def init_redis(hostname, port, password):
+    # Connect to Redis Server
+    global redis_server
+    redis_server = redis.Redis(host=hostname, port=port, password=password)
+    if not redis_server:
+        print('*** FATAL ERROR: Could not conect to the Redis Service')
+        exit(1)
+
+def get_from_redis(s):
+    unpacked = redis_server.get(s)
+    if unpacked:
+        return json.loads(unpacked)
+    else:
+        return {}
+
 ######################################################################
 #   M A I N
 ######################################################################
 if __name__ == "__main__":
     # Get bindings from the environment
+    # Get the crdentials from the Bluemix environment
+    if 'VCAP_SERVICES' in os.environ:
+        VCAP_SERVICES = os.environ['VCAP_SERVICES']
+        services = json.loads(VCAP_SERVICES)
+        redis_creds = services['rediscloud'][0]['credentials']
+        # pull out the fields we need
+        redis_hostname = redis_creds['hostname']
+        redis_port = int(redis_creds['port'])
+        redis_password = redis_creds['password']
+    else:
+        redis_hostname = '127.0.0.1'
+        redis_port = 6379
+        redis_password = None
+
+    init_redis(redis_hostname, redis_port, redis_password)
     port = os.getenv('PORT', '5000')
     app.run(host='0.0.0.0', port=int(port), debug=True)
