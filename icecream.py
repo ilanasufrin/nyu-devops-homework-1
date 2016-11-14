@@ -17,7 +17,7 @@ import redis
 from flask import Flask, Response, jsonify, request, json
 
 # ice-cream Model for testing
-icecreams = {'Vanilla': {'name': 'Vanilla', 'description': 'Ice Cream made from real vanilla, milk and sweet cream','status':'frozen','base':'milk','price':'$4.49','popularity':'4.3/5'}, \
+flavors = {'Vanilla': {'name': 'Vanilla', 'description': 'Ice Cream made from real vanilla, milk and sweet cream','status':'frozen','base':'milk','price':'$4.49','popularity':'4.3/5'}, \
             'Chocolate': {'name': 'Chocolate', 'description': 'Ice Cream made from real cacao bean, milk and sweet cream','status':'frozen','base':'milk','price':'$4.49','popularity':'4.8/5'}, \
             'Strawberry': {'name': 'Strawberry', 'description': 'Ice Cream made from real strawberry, milk and sweet cream','status':'melted','base':'almond milk','price':'$4.49','popularity':'3.8/5'} \
             }
@@ -89,12 +89,11 @@ def index():
 ######################################################################
 # LIST ALL resourceS
 ######################################################################
-@app.route('/ice-creams', methods=['GET'])
+@app.route('/ice-cream', methods=['GET'])
 def list_all_ice_creams():
-     results = []
-     for key, value in icecreams.iteritems():
-         results.append(icecreams[key])
-     return reply(results, HTTP_200_OK)
+    global flavors
+    flavors = get_from_redis('flavors')
+    return reply(flavors, HTTP_200_OK)
 
 ######################################################################
 # RETRIEVE A resource
