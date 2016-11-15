@@ -91,9 +91,10 @@ def index():
 ######################################################################
 @app.route('/ice-cream', methods=['GET'])
 def list_all_ice_creams():
-    global flavors
-    flavors = get_from_redis('flavors')
-    return reply(flavors, HTTP_200_OK)
+    # global flavors
+    # flavors = get_from_redis('flavors')
+    # return reply(flavors, HTTP_200_OK)
+    return "this is to show the error"
 
 ######################################################################
 # RETRIEVE A resource
