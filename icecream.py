@@ -98,16 +98,17 @@ def list_all_ice_creams():
 ######################################################################
 # RETRIEVE A resource
 ######################################################################
-@app.route('/ice-creams/<id>', methods=['GET'])
+@app.route('/ice-cream/<id>', methods=['GET'])
 def get_an_ice_cream(id):
-     if (icecreams).has_key(id):
-         message = icecreams[id]
-         rc = HTTP_200_OK
-     else:
-         message = { 'error' : 'Ice-cream %s was not found' % id }
-         rc = HTTP_404_NOT_FOUND
-
-     return reply(message, rc)
+    global flavors
+    flavors = get_from_redis('flavors')
+    if (flavors).has_key(id):
+        message = flavors[id]
+        rc = HTTP_200_OK
+    else:
+        message = { 'error' : 'Ice-cream %s was not found' % id }
+        rc = HTTP_404_NOT_FOUND
+    return reply(message, rc)
 
 ######################################################################
 # ADD A NEW Ice cream flavor
