@@ -16,12 +16,6 @@ import os
 import redis
 from flask import Flask, Response, jsonify, request, json
 
-# ice-cream Model for testing
-flavors = {'Vanilla': {'name': 'Vanilla', 'description': 'Ice Cream made from real vanilla, milk and sweet cream','status':'frozen','base':'milk','price':'$4.49','popularity':'4.3/5'}, \
-            'Chocolate': {'name': 'Chocolate', 'description': 'Ice Cream made from real cacao bean, milk and sweet cream','status':'frozen','base':'milk','price':'$4.49','popularity':'4.8/5'}, \
-            'Strawberry': {'name': 'Strawberry', 'description': 'Ice Cream made from real strawberry, milk and sweet cream','status':'melted','base':'almond milk','price':'$4.49','popularity':'3.8/5'} \
-            }
-
 # Status Codes
 HTTP_200_OK = 200
 HTTP_201_CREATED = 201
@@ -91,9 +85,10 @@ def index():
 ######################################################################
 @app.route('/ice-cream', methods=['GET'])
 def list_all_ice_creams():
-    global flavors
-    flavors = get_from_redis('flavors')
-    return reply(flavors, HTTP_200_OK)
+    flavors_array = []
+    for flavor in redis_server.smembers('flavors'):
+        flavors_array.append(flavor)
+    return reply({"flavors" : flavors_array}, HTTP_200_OK)
 
 ######################################################################
 # RETRIEVE A resource
@@ -235,6 +230,12 @@ def init_redis(hostname, port, password):
     except redis.ConnectionError:
         # if you end up here, redis instance is down.
         print '*** FATAL ERROR: Could not conect to the Redis Service'
+    seed_database_with_data()
+
+def seed_database_with_data():
+  redis_server.sadd('flavors', {"id": 1, 'name': 'Vanilla', 'description': 'Ice Cream made from real vanilla, milk and sweet cream','status':'frozen','base':'milk','price':'$4.49','popularity':'4.3/5'})
+  redis_server.sadd('flavors', {"id": 2, 'name': 'Chocolate', 'description': 'Ice Cream made from real cacao bean, milk and sweet cream','status':'frozen','base':'milk','price':'$4.49','popularity':'4.8/5'})
+  redis_server.sadd('flavors', {"id": 3, 'name': 'Strawberry', 'description': 'Ice Cream made from real strawberry, milk and sweet cream','status':'melted','base':'almond milk','price':'$4.49','popularity':'3.8/5'})
 
 def get_from_redis(s):
     unpacked = redis_server.get(s)
