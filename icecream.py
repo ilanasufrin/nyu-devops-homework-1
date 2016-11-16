@@ -230,9 +230,11 @@ def init_redis(hostname, port, password):
     # Connect to Redis Server
     global redis_server
     redis_server = redis.Redis(host=hostname, port=port, password=password)
-    if not redis_server:
-        print('*** FATAL ERROR: Could not conect to the Redis Service')
-        exit(1)
+    try:
+        response = redis_server.client_list()
+    except redis.ConnectionError:
+        # if you end up here, redis instance is down.
+        print '*** FATAL ERROR: Could not conect to the Redis Service'
 
 def get_from_redis(s):
     unpacked = redis_server.get(s)
@@ -241,11 +243,7 @@ def get_from_redis(s):
     else:
         return {}
 
-######################################################################
-#   M A I N
-######################################################################
-if __name__ == "__main__":
-    # Get bindings from the environment
+def connect_to_redis():
     # Get the crdentials from the Bluemix environment
     if 'VCAP_SERVICES' in os.environ:
         VCAP_SERVICES = os.environ['VCAP_SERVICES']
@@ -256,10 +254,24 @@ if __name__ == "__main__":
         redis_port = int(redis_creds['port'])
         redis_password = redis_creds['password']
     else:
-        redis_hostname = '127.0.0.1'
+        print "VCAP_SERVICES not found looking for host: redis"
+        response = os.system("ping -c 1 redis")
+        if response == 0:
+            redis_hostname = 'redis'
+        else:
+            redis_hostname = '127.0.0.1'
         redis_port = 6379
         redis_password = None
 
     init_redis(redis_hostname, redis_port, redis_password)
+
+######################################################################
+#   M A I N
+######################################################################
+
+if __name__ == "__main__":
+    print "Ice-cream Service Starting..."
+    connect_to_redis()
+    debug = (os.getenv('DEBUG', 'False') == 'True')
     port = os.getenv('PORT', '5000')
-    app.run(host='0.0.0.0', port=int(port), debug=True)
+    app.run(host='0.0.0.0', port=int(port), debug=debug)
