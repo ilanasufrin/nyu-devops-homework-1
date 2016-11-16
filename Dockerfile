@@ -2,7 +2,7 @@
 FROM alpine:latest
 
 # Document who is responsible for this image
-MAINTAINER John Rofrano "rofrano@us.ibm.com"
+MAINTAINER Mohammad Afshar "ma2510@nyu.edu"
 
 # Install just the Python runtime (no dev)
 RUN apk add --update \
@@ -15,13 +15,13 @@ ENV PORT 5000
 EXPOSE $PORT
 
 # Set up a working folder and install the pre-reqs
+RUN mkdir /app
 WORKDIR /app
-ADD requirements.txt /app
-RUN pip install -r requirements.txt
+COPY requirements.txt /app
+RUN pip install -r /app/requirements.txt
 
 # Add the code as the last Docker layer because it changes the most
-ADD static /app/static
-ADD icecream.py /app
+COPY icecream.py /app
 
 # Run the service
 CMD [ "python", "icecream.py" ]

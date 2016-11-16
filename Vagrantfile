@@ -5,7 +5,7 @@
 # configures the configuration version (we support older styles for
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
-Vagrant.configure("2") do |config|
+Vagrant.configure(2) do |config|
   # The most common configuration options are documented and commented below.
   # For a complete reference, please see the online documentation at
   # https://docs.vagrantup.com.
@@ -14,76 +14,60 @@ Vagrant.configure("2") do |config|
   # boxes at https://atlas.hashicorp.com/search.
   config.vm.box = "ubuntu/trusty64"
 
-  # Disable automatic box update checking. If you disable this, then
-  # boxes will only be checked for updates when the user runs
-  # `vagrant box outdated`. This is not recommended.
-  # config.vm.box_check_update = false
-
-  # Create a forwarded port mapping which allows access to a specific port
-  # within the machine from a port on the host machine. In the example below,
-  # accessing "localhost:8080" will access port 80 on the guest machine.
- #  config.vm.network "forwarded_port", guest: 80, host: 8080
-  #port forwarding for python flask port 5000
+  config.vm.network "forwarded_port", guest: 80, host: 8050
   config.vm.network "forwarded_port", guest: 5000, host: 5000
+  config.vm.network "forwarded_port", guest: 6379, host: 6379
+
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
-   config.vm.network "private_network", ip: "192.168.33.10"
-
-  # Create a public network, which generally matched to bridged network.
-  # Bridged networks make the machine appear as another physical device on
-  # your network.
+  config.vm.network "private_network", ip: "192.168.33.10"
   # config.vm.network "public_network"
-
-  # Share an additional folder to the guest VM. The first argument is
-  # the path on the host to the actual folder. The second argument is
-  # the path on the guest to mount the folder. And the optional third
-  # argument is a set of non-required options.
   # config.vm.synced_folder "../data", "/vagrant_data"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
   # Example for VirtualBox:
   #
-  # config.vm.provider "virtualbox" do |vb|
-  #   # Display the VirtualBox GUI when booting the machine
-  #   vb.gui = true
-  #
-  #   # Customize the amount of memory on the VM:
-  #   vb.memory = "1024"
-  # end
-  #
-  # View the documentation for the provider you are using for more
-  # information on available options.
+  config.vm.provider "virtualbox" do |vb|
+    # Display the VirtualBox GUI when booting the machine
+    #vb.gui = true
 
-  # Define a Vagrant Push strategy for pushing to Atlas. Other push strategies
-  # such as FTP and Heroku are also available. See the documentation at
-  # https://docs.vagrantup.com/v2/push/atlas.html for more information.
-  # config.push.define "atlas" do |push|
-  #   push.app = "YOUR_ATLAS_USERNAME/YOUR_APPLICATION_NAME"
-  # end
+    # Customize the amount of memory on the VM:
+    vb.memory = "1024"
+    vb.cpus = 1
+  end
+  #
+
+  # Copy your .gitconfig file so that your credentials are correct
+  config.vm.provision "file", source: "~/.gitconfig", destination: "~/.gitconfig"
 
   # Enable provisioning with a shell script. Additional provisioners such as
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
-   sudo apt-get update
-   sudo apt-get install -y git python-pip python-dev build-essential zip
-   sudo apt-get -y autoremove
-  # Install the cloud foundry CLI
-   wget -O cf-cli-installer_6.22.1_x86-64.deb 'https://cli.run.pivotal.io/stable?release=debian64&version=6.22.1&source=github-rel'
-   sudo dpkg -i cf-cli-installer_6.22.1_x86-64.deb
-   rm cf-cli-installer_6.22.1_x86-64.deb
-  # Install Bluemix CLI
-   wget http://public.dhe.ibm.com/cloud/bluemix/cli/bluemix-cli/Bluemix_CLI_0.4.2_amd64.tar.gz
-   tar -xvf Bluemix_CLI_0.4.2_amd64.tar.gz
-   cd Bluemix_CLI/
-   sudo ./install_bluemix_cli
-   cd ..
-   rm -fr Bluemix_CLI/
-   rm Bluemix_CLI_0.4.2_amd64.tar.gz
-   # Install App Dependencies
-   cd /vagrant
-   sudo pip install -r requirements.txt
+    sudo apt-get update
+    sudo apt-get install -y git python-pip python-dev build-essential zip
+    sudo apt-get -y autoremove
+    # Make vi look nice
+    echo "colorscheme desert" > ~/.vimrc
+    # Install the Cloud Foundry CLI
+    wget -O cf-cli-installer_6.22.1_x86-64.deb 'https://cli.run.pivotal.io/stable?release=debian64&version=6.22.1&source=github-rel'
+    sudo dpkg -i cf-cli-installer_6.22.1_x86-64.deb
+    rm cf-cli-installer_6.22.1_x86-64.deb
+    # Install the Bluemix CLI
+    # wget http://public.dhe.ibm.com/cloud/bluemix/cli/bluemix-cli/Bluemix_CLI_0.4.2_amd64.tar.gz
+    # tar -xvf Bluemix_CLI_0.4.2_amd64.tar.gz
+    # cd Bluemix_CLI/
+    # sudo ./install_bluemix_cli
+    # cd ..
+    # rm -fr Bluemix_CLI/
+    # rm Bluemix_CLI_0.4.2_amd64.tar.gz
+    # Install app dependencies
+    cd /vagrant
+    sudo pip install -r requirements.txt
+    # Prepare Redis data share
+    sudo mkdir -p /var/lib/redis/data
+    sudo chown vagrant:vagrant /var/lib/redis/data
   SHELL
 
   # Add Redis docker container
@@ -94,12 +78,20 @@ Vagrant.configure("2") do |config|
       args: "--restart=always -d --name redis -h redis -p 6379:6379 -v /var/lib/redis/data:/data"
   end
 
-
   # Install Docker Compose after Docker Engine
-  config.vm.provision "shell", privileged: false, inline: <<-SHELL
+  config.vm.provision "shell", inline: <<-SHELL
     sudo pip install docker-compose
-    # UNCOMMENT ME WHEN IT'S TIME TO DEPLOY TO BLUEMIX
     # Install the IBM Container plugin
-  #  echo Y | cf install-plugin https://static-ice.ng.bluemix.net/ibm-containers-linux_x64
+    cf plugins
+    echo Y | cf install-plugin https://static-ice.ng.bluemix.net/ibm-containers-linux_x64
+    cf plugins
   SHELL
+
+  #Build  docker container
+  config.vm.provision "shell", inline: <<-SHELL
+    cd /vagrant
+    #build the container
+    docker build -t docker-server .
+  SHELL
+
 end
