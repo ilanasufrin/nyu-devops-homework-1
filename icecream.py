@@ -166,18 +166,21 @@ def delete_flavor(id):
 
 ############################################################################
 # QUERY Resources by some attribute of the Resource - Type: Melted/Frozen
-############################################################################
-@app.route('/ice-creams/<id>', methods=['GET'])
-def list_resources_by_type():
-	results = icecreams.values()
-	status = request.args.get('status')
-	if status:
-		results = []
-		for key, value in icecreams.iteritems():
-			if value['status'] == 'status':
-				results.append(icecreams[key])
+# EXAMPLE: get all the frozen ice cream: http://localhost:5000/ice-cream/status/frozen
+# EXAMPLE: get all the melted ice cream: http://localhost:5000/ice-cream/status/melted
 
-	return reply(results, HTTP_200_OK)
+############################################################################
+@app.route('/ice-cream/status/<status>', methods=['GET'])
+def list_resources_by_type(status):
+    global flavors
+    results = {}
+    flavors = get_from_redis('flavors')
+    for flavor in flavors:
+        result = flavors[flavor]
+        if result['status'] == status:
+            results[flavor] = flavors[flavor]
+
+    return reply(results, HTTP_200_OK)
 
 ######################################################################
 # PERFORM some Action on the Resource - UPDATE a resource status
