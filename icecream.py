@@ -241,6 +241,11 @@ def init_redis(hostname, port, password):
     except redis.ConnectionError:
         # if you end up here, redis instance is down.
         print '*** FATAL ERROR: Could not conect to the Redis Service'
+    seed_database_with_data()
+
+def seed_database_with_data():
+  data = {0: {"name": "Vanilla","description": "Ice Cream made from real vanilla, milk and sweet cream","status": "frozen","base": "milk","price": "$4.49","popularity": "4.3/5"}, 1: {"name": "Chocolate","description": "Yummy chocolate ice cream","status": "melted","base": "frozen yogurt","price": "$7777.77","popularity": "5/5"}}
+  redis_server.set('flavors', json.dumps(data))
 
 def get_from_redis(s):
     unpacked = redis_server.get(s)
