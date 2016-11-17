@@ -152,13 +152,16 @@ def update_ice_cream(id):
 ######################################################################
 # DELETE A resource
 ######################################################################
-@app.route('/ice-creams/<id>', methods=['DELETE'])
+@app.route('/ice-cream/<id>', methods=['DELETE'])
 def delete_flavor(id):
-    if icecreams.has_key(id):
-        del icecreams[id]
-        return '', HTTP_204_NO_CONTENT
-    else:
-        return '', HTTP_204_NO_CONTENT
+    global flavors
+    flavors = get_from_redis('flavors')
+    if not flavors.has_key(id):
+        return reply({ 'error' : 'Ice-cream flavor %s doesn\'t exist' % id }, HTTP_400_BAD_REQUEST)
+    del flavors[id];
+    json_flavors=json.dumps(flavors)
+    redis_server.set('flavors',json_flavors)
+    return reply('', HTTP_204_NO_CONTENT)
 
 
 ############################################################################
