@@ -133,18 +133,21 @@ def create_flavor():
 ######################################################################
 # UPDATE AN EXISTING resource
 ######################################################################
-@app.route('/ice-creams/<id>', methods=['PUT'])
+@app.route('/ice-cream/<id>', methods=['PUT'])
 def update_ice_cream(id):
-     payload = json.loads(request.data)
-     if icecreams.has_key(id):
-         icecreams[id] = {'name': payload['name'], 'description': payload['description'], 'status': payload['status'], 'base': payload['base'], 'price': payload['price'], 'popularity': payload['popularity']}
-         message = icecreams[id]
-         rc = HTTP_200_OK
-     else:
-         message = { 'error' : 'Ice-cream %s was not found' % id }
-         rc = HTTP_404_NOT_FOUND
-
-     return reply(message, rc)
+    global flavors
+    flavors = get_from_redis('flavors')
+    payload = json.loads(request.data)
+    if flavors.has_key(id):
+        flavors[id] = {'name': payload['name'], 'description': payload['description'], 'status': payload['status'], 'base': payload['base'], 'price': payload['price'], 'popularity': payload['popularity']}
+        json_flavors=json.dumps(flavors)
+        redis_server.set('flavors',json_flavors)
+        message = flavors[id]
+        rc = HTTP_200_OK
+    else:
+        message = { 'error' : 'Ice-cream flavor %s was not found' % id }
+        rc = HTTP_404_NOT_FOUND
+    return reply(message, rc)
 
 ######################################################################
 # DELETE A resource
