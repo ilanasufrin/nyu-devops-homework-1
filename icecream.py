@@ -139,7 +139,7 @@ def update_ice_cream(id):
     flavors = get_from_redis('flavors')
     payload = json.loads(request.data)
     if flavors.has_key(id):
-        flavors[id] = {'name': payload['name'], 'description': payload['description'], 'status': payload['status'], 'base': payload['base'], 'price': payload['price'], 'popularity': payload['popularity']}
+        flavors[id] = {'name': payload['name'], 'description': payload['description'], 'status': payload['status'], 'base': payload['base'], 'price': payload['price'], 'popularity': payload['popularity'],'id':payload['id']}
         json_flavors=json.dumps(flavors)
         redis_server.set('flavors',json_flavors)
         message = flavors[id]
@@ -180,33 +180,30 @@ def list_resources_by_type():
 	return reply(results, HTTP_200_OK)
 
 ######################################################################
-# PERFORM some Action on the Resource - UPDATE a resource status
-# http://localhost:5000/ice-creams?status=melt changes the status of all ice creams to melted
-# http://localhost:5000/ice-creams?status=freeze changes the status of all ice creams to frozen
+# PERFORM some Action on a Resource - UPDATE a resource status
+# /ice-cream/<id>/freeze - update the status to frozen
+#/ice-cream/<id>/melt -  update the status to melted
 ######################################################################
 
-@app.route('/ice-creams', methods=['PUT'])
-def  put_ice_cream_status():
-     statusupdate = request.args.get('status')
-     if statusupdate == 'melt':
-          for key, value in icecreams.iteritems():
-#              status = icecreams[key]['status']
-#              if status == 'frozen':
-               icecreams[key]['status'] = 'melted'
-               message = { 'success' : 'All ice creams have been melted.'}
-               rc = HTTP_200_OK
-     elif statusupdate == 'freeze':
-          for key, value in icecreams.iteritems():
-#              status = icecreams[key]['status']
-#              if status == 'melt':
-               icecreams[key]['status'] = 'frozen'
-               message = { 'success' : 'All ice creams have been frozen.'}
-               rc = HTTP_200_OK
-     else:
-          message = { 'error' : 'No ice creams were found therefore none could have there status changed to %s'  %  statusupdate}
-          rc = HTTP_404_NOT_FOUND
+@app.route('/ice-cream/<id>/<status>', methods=['PUT'])
+def change_status_freeze(id,status):
+    global flavors
+    print "in action - frozen"
+    flavors = get_from_redis('flavors')
+    if flavors.has_key(id):
+        if status == 'freeze':
+            flavors[id] ['status']= 'frozen'
+        elif status == 'melt':
+            flavors[id] ['status']= 'melted'
+        json_flavors=json.dumps(flavors)
+        redis_server.set('flavors',json_flavors)
+        message = flavors[id]
+        rc = HTTP_200_OK
+    else:
+        message = { 'error' : 'Ice-cream flavor %s was not found' % id }
+        rc = HTTP_404_NOT_FOUND
+    return reply(message, rc)
 
-     return reply(message, rc)
 
 ######################################################################
 # utility functions
@@ -244,7 +241,7 @@ def init_redis(hostname, port, password):
     seed_database_with_data()
 
 def seed_database_with_data():
-  data = {0: {"name": "Vanilla","description": "Ice Cream made from real vanilla, milk and sweet cream","status": "frozen","base": "milk","price": "$4.49","popularity": "4.3/5"}, 1: {"name": "Chocolate","description": "Yummy chocolate ice cream","status": "melted","base": "frozen yogurt","price": "$7777.77","popularity": "5/5"}}
+  data = {0: {"name": "Vanilla","description": "Ice Cream made from real vanilla, milk and sweet cream","status": "frozen","base": "milk","price": "$4.49","popularity": "4.3/5", "id":"0"}, 1: {"name": "Chocolate","description": "Yummy chocolate ice cream","status": "melted","base": "frozen yogurt","price": "$7777.77","popularity": "5/5","id":"1"}}
   redis_server.set('flavors', json.dumps(data))
 
 def get_from_redis(s):
