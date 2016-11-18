@@ -87,13 +87,25 @@ def index():
     return reply(docs, HTTP_200_OK)
 
 ######################################################################
-# LIST ALL resourceS
+# LIST ALL resources
+# EXAMPLE http://localhost:5000/ice-cream
+# EXAMPLE http://localhost:5000/ice-cream?status=frozen
 ######################################################################
 @app.route('/ice-cream', methods=['GET'])
 def list_all_ice_creams():
     global flavors
     flavors = get_from_redis('flavors')
-    return reply(flavors, HTTP_200_OK)
+    results = []
+    # check to see if there is a query parameter to use as a filter
+    status = request.args.get('status')
+    if status:
+        for key, value in flavors.iteritems():
+            if value['status'] == status:
+                results.append(flavors[key])
+    else:
+        results = flavors.values()
+    return reply(results, HTTP_200_OK)
+
 
 ######################################################################
 # RETRIEVE A resource
@@ -162,22 +174,6 @@ def delete_flavor(id):
     json_flavors=json.dumps(flavors)
     redis_server.set('flavors',json_flavors)
     return reply('', HTTP_204_NO_CONTENT)
-
-
-############################################################################
-# QUERY Resources by some attribute of the Resource - Type: Melted/Frozen
-############################################################################
-@app.route('/ice-creams/<id>', methods=['GET'])
-def list_resources_by_type():
-	results = icecreams.values()
-	status = request.args.get('status')
-	if status:
-		results = []
-		for key, value in icecreams.iteritems():
-			if value['status'] == 'status':
-				results.append(icecreams[key])
-
-	return reply(results, HTTP_200_OK)
 
 ######################################################################
 # PERFORM some Action on a Resource - UPDATE a resource status
