@@ -87,13 +87,25 @@ def index():
     return reply(docs, HTTP_200_OK)
 
 ######################################################################
-# LIST ALL resourceS
+# LIST ALL resources
+# EXAMPLE http://localhost:5000/ice-cream
+# EXAMPLE http://localhost:5000/ice-cream?status=frozen
 ######################################################################
 @app.route('/ice-cream', methods=['GET'])
 def list_all_ice_creams():
     global flavors
     flavors = get_from_redis('flavors')
-    return reply(flavors, HTTP_200_OK)
+    results = []
+    # check to see if there is a query parameter to use as a filter
+    status = request.args.get('status')
+    if status:
+        for key, value in flavors.iteritems():
+            if value['status'] == status:
+                results.append(flavors[key])
+    else:
+        results = flavors.values()
+    return reply(results, HTTP_200_OK)
+
 
 ######################################################################
 # RETRIEVE A resource
@@ -162,25 +174,6 @@ def delete_flavor(id):
     json_flavors=json.dumps(flavors)
     redis_server.set('flavors',json_flavors)
     return reply('', HTTP_204_NO_CONTENT)
-
-
-############################################################################
-# QUERY Resources by some attribute of the Resource - Type: Melted/Frozen
-# EXAMPLE: get all the frozen ice cream: http://localhost:5000/ice-cream/status/frozen
-# EXAMPLE: get all the melted ice cream: http://localhost:5000/ice-cream/status/melted
-
-############################################################################
-@app.route('/ice-cream/status/<status>', methods=['GET'])
-def list_resources_by_type(status):
-    global flavors
-    results = {}
-    flavors = get_from_redis('flavors')
-    for flavor in flavors:
-        result = flavors[flavor]
-        if result['status'] == status:
-            results[flavor] = flavors[flavor]
-
-    return reply(results, HTTP_200_OK)
 
 ######################################################################
 # PERFORM some Action on the Resource - UPDATE a resource status
