@@ -98,8 +98,7 @@ Vagrant.configure("2") do |config|
   # Install Docker Compose after Docker Engine
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
     sudo pip install docker-compose
-    # UNCOMMENT ME WHEN IT'S TIME TO DEPLOY TO BLUEMIX
     # Install the IBM Container plugin
-  #  echo Y | cf install-plugin https://static-ice.ng.bluemix.net/ibm-containers-linux_x64
+    echo Y | cf install-plugin https://static-ice.ng.bluemix.net/ibm-containers-linux_x64
   SHELL
 end
