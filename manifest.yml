@@ -6,4 +6,6 @@ applications:
   name: devops-icecream
   host: devops-icecream
   disk_quota: 1024M
+  services:
+  - rediscloud
   buildpack: python_buildpack
