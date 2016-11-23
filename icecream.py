@@ -13,7 +13,8 @@
 # limitations under the License.
 
 import os
-import redis
+from redis import Redis
+from redis.exceptions import ConnectionError
 from flask import Flask, Response, jsonify, request, json
 
 # ice-cream Model for testing
@@ -32,6 +33,9 @@ HTTP_409_CONFLICT = 409
 
 # Create Flask application
 app = Flask(__name__)
+
+debug = (os.getenv('DEBUG', 'False') == 'True')
+port = os.getenv('PORT', '5000')
 
 ######################################################################
 # GET INDEX
@@ -129,17 +133,21 @@ def get_an_ice_cream(id):
 def create_flavor():
     global flavors
     payload = json.loads(request.data)
-    id = str(payload['id'])
-    flavors = get_from_redis('flavors')
-    if flavors.has_key(id):
-        message = { 'error' : 'Flavor %s already exists' % id }
-        rc = HTTP_409_CONFLICT
+    if is_valid(payload):
+        id = str(payload['id'])
+        flavors = get_from_redis('flavors')
+        if flavors.has_key(id):
+            message = { 'error' : 'Flavor %s already exists' % id }
+            rc = HTTP_409_CONFLICT
+        else:
+            flavors[id] = payload
+            message = flavors[id]
+            rc = HTTP_201_CREATED
+            json_users=json.dumps(flavors)
+            redis.set('flavors',json_users)
     else:
-        flavors[id] = payload
-        message = flavors[id]
-        rc = HTTP_201_CREATED
-        json_users=json.dumps(flavors)
-        redis_server.set('flavors',json_users)
+        message = { 'error' : 'Data is not valid' }
+        rc = HTTP_400_BAD_REQUEST
     return reply(message, rc)
 
 ######################################################################
@@ -153,7 +161,7 @@ def update_ice_cream(id):
     if flavors.has_key(id):
         flavors[id] = {'name': payload['name'], 'description': payload['description'], 'status': payload['status'], 'base': payload['base'], 'price': payload['price'], 'popularity': payload['popularity'],'id':payload['id']}
         json_flavors=json.dumps(flavors)
-        redis_server.set('flavors',json_flavors)
+        redis.set('flavors',json_flavors)
         message = flavors[id]
         rc = HTTP_200_OK
     else:
@@ -172,7 +180,7 @@ def delete_flavor(id):
         return reply({ 'error' : 'Ice-cream flavor %s doesn\'t exist' % id }, HTTP_400_BAD_REQUEST)
     del flavors[id];
     json_flavors=json.dumps(flavors)
-    redis_server.set('flavors',json_flavors)
+    redis.set('flavors',json_flavors)
     return reply('', HTTP_204_NO_CONTENT)
 
 ######################################################################
@@ -184,7 +192,6 @@ def delete_flavor(id):
 @app.route('/ice-cream/<id>/<status>', methods=['PUT'])
 def change_status_freeze(id,status):
     global flavors
-    print "in action - frozen"
     flavors = get_from_redis('flavors')
     if flavors.has_key(id):
         if status == 'freeze':
@@ -192,7 +199,7 @@ def change_status_freeze(id,status):
         elif status == 'melt':
             flavors[id] ['status']= 'melted'
         json_flavors=json.dumps(flavors)
-        redis_server.set('flavors',json_flavors)
+        redis.set('flavors',json_flavors)
         message = flavors[id]
         rc = HTTP_200_OK
     else:
@@ -219,67 +226,78 @@ def is_valid(data):
         base = data['base']
         price = data['price']
         popularity = data['popularity']
+        id = data['id']
         valid = True
     except KeyError as err:
         app.logger.error('Missing value error: %s', err)
     return valid
 
 # Initialize Redis
-def init_redis(hostname, port, password):
-    # Connect to Redis Server
-    global redis_server
-    redis_server = redis.Redis(host=hostname, port=port, password=password)
-    try:
-        response = redis_server.client_list()
-    except redis.ConnectionError:
-        # if you end up here, redis instance is down.
-        print '*** FATAL ERROR: Could not conect to the Redis Service'
-    seed_database_with_data()
 
 def seed_database_with_data():
   global flavors
   flavors = get_from_redis('flavors')
 
   if not flavors:
-      data = {0: {"name": "Vanilla","description": "Ice Cream made from real vanilla, milk and sweet cream","status": "frozen","base": "milk","price": "$4.49","popularity": "4.3/5"}, 1: {"name": "Chocolate","description": "Yummy chocolate ice cream","status": "melted","base": "frozen yogurt","price": "$7777.77","popularity": "5/5"}}
-      redis_server.set('flavors', json.dumps(data))
+      data = {0: {"name": "Vanilla","description": "Ice Cream made from real vanilla, milk and sweet cream","status": "frozen","base": "milk","price": "$4.49","popularity": "4.3/5","id":"0"}, 1: {"name": "Chocolate","description": "Yummy chocolate ice cream","status": "melted","base": "frozen yogurt","price": "$5.99","popularity": "4.8/5","id":"1"}}
+      redis.set('flavors', json.dumps(data))
 
 def get_from_redis(s):
-    unpacked = redis_server.get(s)
+    unpacked = redis.get(s)
     if unpacked:
         return json.loads(unpacked)
     else:
         return {}
 
-def connect_to_redis():
+######################################################################
+# Connect to Redis and catch connection exceptions
+######################################################################
+
+def connect_to_redis(hostname, port, password):
+    redis = Redis(host=hostname, port=port, password=password)
+    try:
+        redis.ping()
+    except ConnectionError:
+        redis = None
+    return redis
+
+######################################################################
+# INITIALIZE Redis
+# This method will work in the following conditions:
+#   1) In Bluemix with Redsi bound through VCAP_SERVICES
+#   2) With Redis running on the local server as with Travis CI
+#   3) With Redis --link ed in a Docker container called 'redis'
+######################################################################
+def inititalize_redis():
+    global redis
+    redis = None
     # Get the crdentials from the Bluemix environment
     if 'VCAP_SERVICES' in os.environ:
+        print "Using VCAP_SERVICES..."
         VCAP_SERVICES = os.environ['VCAP_SERVICES']
         services = json.loads(VCAP_SERVICES)
-        redis_creds = services['rediscloud'][0]['credentials']
-        # pull out the fields we need
-        redis_hostname = redis_creds['hostname']
-        redis_port = int(redis_creds['port'])
-        redis_password = redis_creds['password']
+        creds = services['rediscloud'][0]['credentials']
+        print "Conecting to Redis on host %s port %s" % (creds['hostname'], creds['port'])
+        redis = connect_to_redis(creds['hostname'], creds['port'], creds['password'])
     else:
-        print "VCAP_SERVICES not found looking for host: redis"
-        response = os.system("ping -c 1 redis")
-        if response == 0:
-            redis_hostname = 'redis'
-        else:
-            redis_hostname = '127.0.0.1'
-        redis_port = 6379
-        redis_password = None
-
-    init_redis(redis_hostname, redis_port, redis_password)
-
+        print "VCAP_SERVICES not found, checking localhost for Redis"
+        redis = connect_to_redis('127.0.0.1', 6379, None)
+        if not redis:
+            print "No Redis on localhost, pinging: redis"
+            response = os.system("ping -c 1 redis")
+            if response == 0:
+                print "Connecting to remote: redis"
+                redis = connect_to_redis('redis', 6379, None)
+    seed_database_with_data()
+    if not redis:
+        # if you end up here, redis instance is down.
+        print '*** FATAL ERROR: Could not connect to the Redis Service'
+        exit(1)
 ######################################################################
 #   M A I N
 ######################################################################
 
 if __name__ == "__main__":
     print "Ice-cream Service Starting..."
-    connect_to_redis()
-    debug = (os.getenv('DEBUG', 'False') == 'True')
-    port = os.getenv('PORT', '5000')
+    inititalize_redis()
     app.run(host='0.0.0.0', port=int(port), debug=debug)
