@@ -33,3 +33,38 @@ def step_impl(context, message):
 # def step_impl(context):
 #     assert context.resp.status_code == 200
 #     assert len(context.resp.data) > 0
+
+@given('I want to melt or freeze an icecream')
+def step_impl(context):
+    context.resp = context.app.put('/ice-cream/0/melt')
+    assert context.resp.status_code == 200
+    context.resp = context.app.put('/ice-cream/0/freeze')
+    assert context.resp.status_code == 200
+
+@when('I append melt at the end of the url')
+def step_impl(context):
+    context.resp = context.app.put('/ice-cream/0/melt')
+
+@then(u'I should have \'melted\'')
+def step_impl(context):
+    context.resp = context.app.put('/ice-cream/0/melt')
+    assert 'melted' in context.resp.data
+
+@then(u'I should have melted \'Vanilla\'')
+def step_impl(context):
+    context.resp = context.app.put('/ice-cream/0/melt')
+    assert 'Vanilla' in context.resp.data
+
+@when(u'I append freeze at the end of the url')
+def step_impl(context):
+    context.resp = context.app.put('/ice-cream/0/freeze')
+
+@then(u'I should have \'frozen\'')
+def step_impl(context):
+    context.resp = context.app.put('/ice-cream/0/freeze')
+    assert 'frozen' in context.resp.data
+
+@then(u'I should have frozen \'Vanilla\'')
+def step_impl(context):
+    context.resp = context.app.put('/ice-cream/0/freeze')
+    assert 'Vanilla' in context.resp.data
