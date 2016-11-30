@@ -20,3 +20,12 @@ Scenario: List all icecreams
     Then I should see 'vanilla'
     And I should see 'chocolate'
     And I should see 'strawberry'
+
+    Scenario: Action on the ice-cream
+      Given I want to melt or freeze an icecream
+      When I append melt at the end of the url
+      Then I should have 'melted'
+      And I should have melted 'Vanilla'
+      When I append freeze at the end of the url
+      Then I should have 'frozen'
+      And I should have frozen 'Vanilla'
