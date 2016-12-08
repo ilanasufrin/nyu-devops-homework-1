@@ -2,6 +2,9 @@
 
 ## Team members are Ilana, Sydney, Nihit, and Soumie
 
+[![Build Status](https://travis-ci.org/ilanasufrin/nyu-devops-homework-1.svg?branch=master)](https://travis-ci.org/ilanasufrin/nyu-devops-homework-1)
+https://img.shields.io/codecov/c/github/ilanasufrin/nyu-devops-homework-1.svg)]()
+
 #Sample Bluemix Python Web application
 
 The sample is using [Flask microframework](http://flask.pocoo.org/) and is intented to test the Python support on [IBM's Bluemix](https://bluemix.net/) environment which is based on Cloud Foundry.
