@@ -11,6 +11,7 @@ before_script: redis-cli ping
 script:
   - nosetests
   - coverage run test_icecream.py
+  - behave
 
 after_success:
   - codecov
