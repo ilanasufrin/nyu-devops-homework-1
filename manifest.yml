@@ -7,5 +7,5 @@ applications:
   host: devops-icecream
   disk_quota: 1024M
   services:
-  - rediscloud
+    - Redis Cloud-wz
   buildpack: python_buildpack
