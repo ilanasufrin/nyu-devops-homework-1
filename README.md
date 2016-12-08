@@ -3,6 +3,7 @@
 ## Team members are Ilana, Sydney, Nihit, and Soumie
 
 [![Build Status](https://travis-ci.org/ilanasufrin/nyu-devops-homework-1.svg?branch=master)](https://travis-ci.org/ilanasufrin/nyu-devops-homework-1)
+https://img.shields.io/codecov/c/github/ilanasufrin/nyu-devops-homework-1.svg)]()
 
 #Sample Bluemix Python Web application
 
