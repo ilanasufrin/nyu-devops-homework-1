@@ -18,10 +18,7 @@ from redis.exceptions import ConnectionError
 from flask import Flask, Response, jsonify, request, json
 
 # ice-cream Model for testing
-flavors = {'Vanilla': {'name': 'Vanilla', 'description': 'Ice Cream made from real vanilla, milk and sweet cream','status':'frozen','base':'milk','price':'$4.49','popularity':'4.3/5'}, \
-            'Chocolate': {'name': 'Chocolate', 'description': 'Ice Cream made from real cacao bean, milk and sweet cream','status':'frozen','base':'milk','price':'$4.49','popularity':'4.8/5'}, \
-            'Strawberry': {'name': 'Strawberry', 'description': 'Ice Cream made from real strawberry, milk and sweet cream','status':'melted','base':'almond milk','price':'$4.49','popularity':'3.8/5'} \
-            }
+flavors = {}
 
 # Status Codes
 HTTP_200_OK = 200
@@ -232,15 +229,17 @@ def is_valid(data):
         app.logger.error('Missing value error: %s', err)
     return valid
 
-# Initialize Redis
-
 def seed_database_with_data():
   global flavors
   flavors = get_from_redis('flavors')
 
   if not flavors:
-      data = {0: {"name": "Vanilla","description": "Ice Cream made from real vanilla, milk and sweet cream","status": "frozen","base": "milk","price": "$4.49","popularity": "4.3/5","id":"0"}, 1: {"name": "Chocolate","description": "Yummy chocolate ice cream","status": "melted","base": "frozen yogurt","price": "$5.99","popularity": "4.8/5","id":"1"}}
+      data = {4: {"name": "Vanilla","description": "Ice Cream made from real vanilla, milk and sweet cream","status": "frozen","base": "milk","price": "$4.49","popularity": "4.3/5","id":"4"}, 6: {"name": "Chocolate","description": "Yummy chocolate ice cream","status": "melted","base": "frozen yogurt","price": "$5.99","popularity": "4.8/5","id":"6"}, 7: {"name": "Strawberry","description": "Ice Cream made from real strawberry, milk and sweet cream","status": "frozen","base": "milk","price": "$4.00","popularity": "3/5","id":"7"}}
       redis.set('flavors', json.dumps(data))
+
+def data_reset():
+    redis.flushall()
+    seed_database_with_data()
 
 def get_from_redis(s):
     unpacked = redis.get(s)
