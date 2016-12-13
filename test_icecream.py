@@ -28,6 +28,11 @@ class TestIcecreamService(unittest.TestCase):
         TestIcecreamService.delete_data(self)
         self.app = None
 
+    def test_index(self):
+        resp = self.app.get('/')
+        self.assertTrue ('Swagger UI' in resp.data)
+        self.assertTrue( resp.status_code == HTTP_200_OK )
+
     def test_api_url(self):
         resp = self.app.get('/')
         self.assertTrue ('Ice-cream REST API' in resp.data)
@@ -150,6 +155,37 @@ class TestIcecreamService(unittest.TestCase):
         data = json.dumps(new_ice_cream)
         resp = self.app.post('/ice-cream', data=data, content_type='application/json')
         self.assertTrue( resp.status_code == HTTP_400_BAD_REQUEST )
+
+
+######################################################################
+# Swagger Tests
+######################################################################
+
+    def test_index(self):
+        response = self.app.get("/")
+        self.assertNotEqual(response.status_code, HTTP_404_NOT_FOUND)
+
+    def test_send_lib(self):
+        response = self.app.get("/lib/marked.js")
+        self.assertNotEqual(response.status_code, HTTP_404_NOT_FOUND)
+
+    def test_send_spec(self):
+        response = self.app.get("/specification/icecream.js")
+        self.assertNotEqual(response.status_code, HTTP_404_NOT_FOUND)
+
+    def test_send_img(self):
+        response = self.app.get("/images/logo_small.png")
+        self.assertNotEqual(response.status_code, HTTP_404_NOT_FOUND)
+
+    def test_send_css(self):
+        response = self.app.get("/css/style.css")
+        self.assertNotEqual(response.status_code, HTTP_404_NOT_FOUND)
+
+    def test_send_fonts(self):
+        response = self.app.get("/fonts/DroidSans.ttf")
+        self.assertNotEqual(response.status_code, HTTP_404_NOT_FOUND)
+
+
 
 ######################################################################
 # Utility functions
