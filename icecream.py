@@ -39,53 +39,56 @@ port = os.getenv('PORT', '5000')
 ######################################################################
 @app.route('/')
 def index():
-    docs = {
-      "name": "Ice-cream REST API",
-      "version": "1.0",
-      "domain": "http://devops-icecream.mybluemix.net/",
-      "url": [
-        {
-          "url":"/ice-cream",
-          "method": "GET",
-          "description": "List all icecream information"
-        },{
-          "url":"/ice-cream/<id>",
-          "method": "GET",
-          "description": "Get icecream with id <id>"
-        },{
-          "url":"/ice-cream",
-          "method": "POST",
-          "description": "Create an icecream",
-          "sample_body": {
-            "id": 0,
-            "name": "Vanilla",
-            "description": "Ice Cream made from real vanilla, milk and sweet cream",
-            "status": "frozen",
-            "base": "milk",
-            "price": "$4.49",
-            "popularity": "4.3/5"
-          }
-        },{
-          "url":"/ice-cream/<id>",
-          "method": "DELETE",
-          "description": "Delete an icecream"
-        },{
-          "url":"/ice-cream/<id>",
-          "method": "PUT",
-          "description": "Update ice-cream with id <id>. Updates description and status",
-          "sample_body": {
-            "id": 0,
-            "name": "Vanilla",
-            "description": "Ice Cream made from real vanilla, milk and sweet cream",
-            "status": "frozen",
-            "base": "milk",
-            "price": "$4.49",
-            "popularity": "4.3/5"
-          }
-        }
-      ]
-    }
-    return reply(docs, HTTP_200_OK)
+    # docs = {
+    #   "name": "Ice-cream REST API",
+    #   "version": "1.0",
+    #   "domain": "http://devops-icecream.mybluemix.net/",
+    #   "url": [
+    #     {
+    #       "url":"/ice-cream",
+    #       "method": "GET",
+    #       "description": "List all icecream information"
+    #     },{
+    #       "url":"/ice-cream/<id>",
+    #       "method": "GET",
+    #       "description": "Get icecream with id <id>"
+    #     },{
+    #       "url":"/ice-cream",
+    #       "method": "POST",
+    #       "description": "Create an icecream",
+    #       "sample_body": {
+    #         "id": 0,
+    #         "name": "Vanilla",
+    #         "description": "Ice Cream made from real vanilla, milk and sweet cream",
+    #         "status": "frozen",
+    #         "base": "milk",
+    #         "price": "$4.49",
+    #         "popularity": "4.3/5"
+    #       }
+    #     },{
+    #       "url":"/ice-cream/<id>",
+    #       "method": "DELETE",
+    #       "description": "Delete an icecream"
+    #     },{
+    #       "url":"/ice-cream/<id>",
+    #       "method": "PUT",
+    #       "description": "Update ice-cream with id <id>. Updates description and status",
+    #       "sample_body": {
+    #         "id": 0,
+    #         "name": "Vanilla",
+    #         "description": "Ice Cream made from real vanilla, milk and sweet cream",
+    #         "status": "frozen",
+    #         "base": "milk",
+    #         "price": "$4.49",
+    #         "popularity": "4.3/5"
+    #       }
+    #     }
+    #   ]
+    # }
+    """Sends the Swagger main HTML page to the client.
+        Returns: HTML content of static/swagger/index.html
+    """
+    return app.send_static_file('swagger/index.html')   
 
 ######################################################################
 # LIST ALL resources
