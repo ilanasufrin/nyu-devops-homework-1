@@ -88,7 +88,27 @@ def index():
     """Sends the Swagger main HTML page to the client.
         Returns: HTML content of static/swagger/index.html
     """
-    return app.send_static_file('swagger/index.html')   
+    return app.send_static_file('swagger/index.html')
+
+@app.route('/lib/<path:path>')
+def send_lib(path):
+    return app.send_static_file('swagger/lib/' + path)
+
+@app.route('/specification/<path:path>')
+def send_specification(path):
+    return app.send_static_file('swagger/specification/' + path)
+
+@app.route('/images/<path:path>')
+def send_images(path):
+    return app.send_static_file('swagger/images/' + path)
+
+@app.route('/css/<path:path>')
+def send_css(path):
+    return app.send_static_file('swagger/css/' + path)
+
+@app.route('/fonts/<path:path>')
+def send_fonts(path):
+    return app.send_static_file('swagger/fonts/' + path)
 
 ######################################################################
 # LIST ALL resources
