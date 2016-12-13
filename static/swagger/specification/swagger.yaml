@@ -5,7 +5,7 @@ info:
     \ rating, the cost, the ingredients, and an additional status flag to know if\
     \ it's melted or frozen.\n\nFind source code of this API [here](https://github.com/ilanasufrin/nyu-devops-homework-1)\n"
   version: "1.0.0"
-  title: "Meeting Rest API"
+  title: "Ice-cream REST API"
 host: "devops-icecream.mybluemix.net"
 basePath: "/"
 schemes:
