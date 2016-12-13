@@ -1,0 +1,173 @@
+swagger: "2.0"
+info:
+  description: "**This is an API made as part of NYU DevOps**\n\nThe icecream API\
+    \ can be used to find information about different types of icecream, such as it's\
+    \ rating, the cost, the ingredients, and an additional status flag to know if\
+    \ it's melted or frozen.\n\nFind source code of this API [here](https://github.com/ilanasufrin/nyu-devops-homework-1)\n"
+  version: "1.0.0"
+  title: "Meeting Rest API"
+host: "devops-icecream.mybluemix.net"
+basePath: "/"
+schemes:
+- "http"
+- "https"
+consumes:
+- "application/json"
+- "text/xml"
+produces:
+- "application/json"
+- "text/html"
+paths:
+  /ice-cream:
+    get:
+      tags:
+      - "default"
+      operationId: "controllers.default_controller.ice_cream_get"
+      parameters: []
+      responses:
+        200:
+          description: "List all icecream flavor information"
+          schema:
+            type: "array"
+            title: "icecream"
+            items:
+              $ref: "#/definitions/icecream"
+    post:
+      tags:
+      - "default"
+      operationId: "controllers.default_controller.ice_cream_post"
+      parameters:
+      - in: "body"
+        name: "icecream"
+        description: "Icecream flavor information"
+        required: true
+        schema:
+          $ref: "#/definitions/icecream"
+      responses:
+        200:
+          description: "Created icecream flavor"
+        409:
+          description: "Icecream flavor already exists"
+          schema:
+            type: "object"
+            title: "respone"
+            properties: {}
+  /ice-cream/{id}:
+    get:
+      tags:
+      - "default"
+      operationId: "controllers.default_controller.ice_cream_id_get"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of the icecream flavor"
+        required: true
+        type: "integer"
+      responses:
+        200:
+          description: "Sends the icecream flavor with the ID"
+        400:
+          description: "Icecream flavor does not exist"
+          schema:
+            type: "object"
+            title: "respone"
+            properties: {}
+    put:
+      tags:
+      - "default"
+      operationId: "controllers.default_controller.ice_cream_id_put"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of the icecream flavor"
+        required: true
+        type: "integer"
+      - in: "body"
+        name: "user"
+        description: "Icecream flavor details"
+        required: true
+        schema:
+          $ref: "#/definitions/icecream"
+      responses:
+        200:
+          description: "Updates the Icecream flavor with the id, and replaces with\
+            \ Body"
+        404:
+          description: "Icecream flavor not found"
+          schema:
+            type: "object"
+            title: "respone"
+            properties: {}
+    delete:
+      tags:
+      - "default"
+      operationId: "controllers.default_controller.ice_cream_id_delete"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of the icecream flavor"
+        required: true
+        type: "integer"
+      responses:
+        200:
+          description: "Deletes the icecream flavor with the ID"
+        204:
+          description: "Icecream flavor does not exist"
+          schema:
+            type: "object"
+            title: "respone"
+            properties: {}
+  /ice-cream/{id}/{status}:
+    put:
+      tags:
+      - "default"
+      operationId: "controllers.default_controller.ice_cream_id_status_put"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of the icecream flavor"
+        required: true
+        type: "integer"
+      - name: "status"
+        in: "path"
+        description: "Type of the status"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "time"
+        description: "Type of status to be replaced"
+        required: true
+        schema:
+          $ref: "#/definitions/icecream"
+      responses:
+        200:
+          description: "Updates the status of icecream flavor with the id"
+        404:
+          description: "Icecream flavor not found"
+          schema:
+            type: "object"
+            title: "respone"
+            properties: {}
+definitions:
+  icecream:
+    type: "object"
+    properties:
+      base:
+        type: "string"
+      description:
+        type: "string"
+      id:
+        type: "string"
+      name:
+        type: "string"
+      popularity:
+        type: "string"
+      price:
+        type: "string"
+      status:
+        type: "string"
+  error:
+    type: "object"
+    properties:
+      error:
+        type: "string"
