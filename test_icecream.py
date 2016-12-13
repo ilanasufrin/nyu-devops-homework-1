@@ -28,7 +28,7 @@ class TestIcecreamService(unittest.TestCase):
         TestIcecreamService.delete_data(self)
         self.app = None
 
-    def test_index(self):
+    def test_api_url(self):
         resp = self.app.get('/')
         self.assertTrue ('Ice-cream REST API' in resp.data)
         self.assertTrue( resp.status_code == HTTP_200_OK )
@@ -150,19 +150,6 @@ class TestIcecreamService(unittest.TestCase):
         data = json.dumps(new_ice_cream)
         resp = self.app.post('/ice-cream', data=data, content_type='application/json')
         self.assertTrue( resp.status_code == HTTP_400_BAD_REQUEST )
-
-    def test_seed_database_when_no_data_present(self):
-        ice_creams_count = self.get_ice_creams_count()
-        resp = self.app.delete('/ice-cream/0', content_type='application/json')
-        resp = self.app.delete('/ice-cream/1', content_type='application/json')
-        self.delete_data()
-        new_count = self.get_ice_creams_count()
-        self.assertTrue ( new_count == 0)
-        icecream.seed_database_with_data()
-        self.setup_data()
-        new_count = self.get_ice_creams_count()
-        self.assertTrue ( new_count > 0)
-
 
 ######################################################################
 # Utility functions
