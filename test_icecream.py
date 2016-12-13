@@ -165,27 +165,25 @@ class TestIcecreamService(unittest.TestCase):
         response = self.app.get("/")
         self.assertNotEqual(response.status_code, HTTP_404_NOT_FOUND)
 
-    def test_send_lib(self):
-        response = self.app.get("/lib/marked.js")
-        self.assertNotEqual(response.status_code, HTTP_404_NOT_FOUND)
-
     def test_send_spec(self):
         response = self.app.get("/specification/icecream.js")
         self.assertNotEqual(response.status_code, HTTP_404_NOT_FOUND)
 
-    def test_send_img(self):
-        response = self.app.get("/images/logo_small.png")
-        self.assertNotEqual(response.status_code, HTTP_404_NOT_FOUND)
-
-    def test_send_css(self):
-        response = self.app.get("/css/style.css")
+    def test_send_lib(self):
+        response = self.app.get("/lib/marked.js")
         self.assertNotEqual(response.status_code, HTTP_404_NOT_FOUND)
 
     def test_send_fonts(self):
         response = self.app.get("/fonts/DroidSans.ttf")
         self.assertNotEqual(response.status_code, HTTP_404_NOT_FOUND)
 
+    def test_send_css(self):
+        response = self.app.get("/css/style.css")
+        self.assertNotEqual(response.status_code, HTTP_404_NOT_FOUND)
 
+    def test_send_img(self):
+        response = self.app.get("/images/logo_small.png")
+        self.assertNotEqual(response.status_code, HTTP_404_NOT_FOUND)
 
 ######################################################################
 # Utility functions
