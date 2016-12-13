@@ -1,9 +1,9 @@
 var spec = {
     "swagger": "2.0",
     "info": {
-        "description": "**This is an API made as part of NYU DevOps**\n\nThe icecream API can be used to find information about different types of icecream, such as it's rating, the cost, the ingredients, and an additional status flag to know if it's melted or frozen.\n\nFind source code of this API [here](https://github.com/ilanasufrin/nyu-devops-homework-1)\n",
+        "description": "**This is an API made for NYU DevOps**\n\nThe icecream API can be used to find information about different types of icecream, such as it's rating, the cost, the ingredients, and an additional status flag to know if it's melted or frozen.\n\nFind source code of this API [here](https://github.com/ilanasufrin/nyu-devops-homework-1)\n",
         "version": "1.0.0",
-        "title": "Meeting Rest API"
+        "title": "Ice-cream REST API"
     },
     "host": "devops-icecream.mybluemix.net",
     "basePath": "/",
