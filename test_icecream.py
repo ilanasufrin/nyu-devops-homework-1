@@ -33,10 +33,11 @@ class TestIcecreamService(unittest.TestCase):
         self.assertTrue ('Swagger UI' in resp.data)
         self.assertTrue( resp.status_code == HTTP_200_OK )
 
-    def test_api_url(self):
-        resp = self.app.get('/')
-        self.assertTrue ('Ice-cream REST API' in resp.data)
-        self.assertTrue( resp.status_code == HTTP_200_OK )
+    #test covered by swagger:
+    # def test_api_url(self):
+    #     resp = self.app.get('/')
+    #     self.assertTrue ('Ice-cream REST API' in resp.data)
+    #     self.assertTrue( resp.status_code == HTTP_200_OK )
 
     def test_get_ice_cream_list(self):
         resp = self.app.get('/ice-cream')
