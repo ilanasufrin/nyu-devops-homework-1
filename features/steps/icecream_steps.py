@@ -71,6 +71,27 @@ def step_impl(context, url):
 # def step_impl(context):
 #     assert context.resp.status_code == 200
 #     assert len(context.resp.data) > 0
+@given('I want to query ice-cream by status')
+def step_impl(context):
+    context.resp = context.app.get('/ice-cream?status=frozen')
+    assert context.resp.status_code == 200
+
+@when(u'I give status as frozen')
+def step_impl(context):
+    context.resp = context.app.get('/ice-cream?status=frozen')
+
+@then(u'I should get \'frozen\'')
+def step_impl(context):
+    context.resp = context.app.get('/ice-cream?status=frozen')
+    assert 'frozen' in context.resp.data
+
+@then(u'I should not get \'melted\'')
+def step_impl(context):
+    context.resp = context.app.get('/ice-cream?status=frozen')
+    assert 'melted' not in context.resp.data
+
+
+
 
 @given('I want to melt or freeze an icecream')
 def step_impl(context):
@@ -106,5 +127,3 @@ def step_impl(context):
 def step_impl(context):
     context.resp = context.app.put('/ice-cream/4/freeze')
     assert 'Vanilla' in context.resp.data
-
-

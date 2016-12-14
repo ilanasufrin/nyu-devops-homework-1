@@ -64,12 +64,11 @@ Scenario: Update an icecream
   And I visit '/ice-cream/6'
   Then I should see 'Mango'
 
-
-
-
-
-
-
+Scenario: Query on the ice-cream
+  Given I want to query ice-cream by status
+  When I give status as frozen
+  Then I should get 'frozen'
+  And I should not get 'melted'
 
 Scenario: Action on the ice-cream
   Given I want to melt or freeze an icecream
